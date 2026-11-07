@@ -28,6 +28,7 @@ PHP puro (8.0+), MySQL/MariaDB e JavaScript puro. Sem Composer.
 1. Envie `private/` para **ao lado** de `public_html/` (não dentro).
 2. Crie o banco no painel da hospedagem e importe `private/sql/schema.sql` (phpMyAdmin > Importar).
 3. Copie `private/config.exemplo.php` para `private/config.php` e preencha banco, SMTP, `app.segredo`
+   - Opcional: o SMTP pode ficar em `private/auth/smtp.json` (copie de `smtp.exemplo.json`); se existir, ele substitui o SMTP do `config.php`. No Gmail use `smtp.gmail.com`, porta 587 e uma **Senha de app** (Conta Google > Segurança > Verificação em 2 etapas > Senhas de app), não a senha normal
    (`php -r "echo bin2hex(random_bytes(32));"`) e a configuração Web do Firebase.
 4. Firebase: Console > Configurações do projeto > Contas de serviço > **Gerar nova chave** → salve como
    `private/firebase/conta-servico.json`. Ative o Firestore e publique `firebase/firestore.rules`.

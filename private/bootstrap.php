@@ -14,6 +14,29 @@ if (!is_file(__DIR__ . '/config.php')) {
 }
 $GLOBALS['TLA_CONFIG'] = require __DIR__ . '/config.php';
 
+// SMTP opcional em private/auth/smtp.json (sobrepõe email.* do config.php).
+$smtpArquivo = __DIR__ . '/auth/smtp.json';
+if (is_file($smtpArquivo)) {
+    $smtp = json_decode((string)file_get_contents($smtpArquivo), true);
+    if (is_array($smtp) && !empty($smtp['host'])) {
+        $porta = (int)($smtp['port'] ?? 587);
+        $GLOBALS['TLA_CONFIG']['email'] = array_merge($GLOBALS['TLA_CONFIG']['email'] ?? [], [
+            'modo'    => 'smtp',
+            'de'      => (string)($smtp['from_email'] ?? $smtp['user'] ?? ''),
+            'de_nome' => (string)($smtp['from_name'] ?? ''),
+            'smtp'    => [
+                'host'      => (string)$smtp['host'],
+                'porta'     => $porta,
+                'seguranca' => (string)($smtp['secure'] ?? ($porta === 465 ? 'ssl' : 'tls')),
+                'usuario'   => (string)($smtp['user'] ?? ''),
+                'senha'     => (string)($smtp['pass'] ?? ''),
+            ],
+        ]);
+    }
+    unset($smtp, $porta);
+}
+unset($smtpArquivo);
+
 ini_set('display_errors', cfg('app.debug') ? '1' : '0');
 ini_set('log_errors', '1');
 ini_set('error_log', __DIR__ . '/logs/php-erros.log');
