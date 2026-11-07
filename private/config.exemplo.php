@@ -18,10 +18,13 @@ return [
     ],
 
     'email' => [
-        // 'smtp' (recomendado), 'mail' (função mail() do PHP) ou 'log' (só grava em private/logs/emails.log, para testes)
+        // 'smtp' (recomendado), 'mail' (função mail() do PHP) ou 'log' (só grava em private/logs/emails_enviados.json, para testes)
         'modo'    => 'smtp',
         'de'      => 'nao-responda@seudominio.com.br',
         'de_nome' => 'Te Liga Aí',
+        // freio anti-spam (o Gmail bloqueia acima de ~500 e-mails por dia)
+        'max_por_dia'           => 450,
+        'max_por_endereco_hora' => 6,
         'smtp'    => [
             'host'      => 'smtp.hostinger.com',
             'porta'     => 465,
@@ -46,8 +49,8 @@ return [
     ],
 
     'uploads' => [
-        'dir'        => dirname(__DIR__) . '/public_html/uploads/u',
-        'url'        => '/uploads/u',
+        'dir'        => dirname(__DIR__) . '/public_html/uploads',
+        'url'        => '/uploads',
         'max_bytes'  => 5 * 1024 * 1024,
         'max_fotos'  => 8,
         'max_lado'   => 1600,

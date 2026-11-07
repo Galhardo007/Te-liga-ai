@@ -1,6 +1,6 @@
 rules_version = '2';
 // Te Liga Aí — regras do chat. Publique no Console Firebase > Firestore > Regras (ou: firebase deploy --only firestore:rules).
-// request.auth.uid = "u" + id do MySQL; request.auth.token.tipo = 'usuario' | 'anunciante' | 'admin' (vem do PHP).
+// request.auth.uid = "u" + id do MySQL; request.auth.token.tipo = 'usuario' (só contas de usuário recebem token do chat).
 service cloud.firestore {
   match /databases/{database}/documents {
 

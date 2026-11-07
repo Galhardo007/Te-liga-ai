@@ -14,8 +14,8 @@ if (!is_file(__DIR__ . '/config.php')) {
 }
 $GLOBALS['TLA_CONFIG'] = require __DIR__ . '/config.php';
 
-// SMTP opcional em private/auth/smtp.json (sobrepõe email.* do config.php).
-$smtpArquivo = __DIR__ . '/auth/smtp.json';
+// SMTP opcional em private/auth/smtp.json ou private/comerciantes/smtp.json (sobrepõe email.* do config.php).
+$smtpArquivo = is_file(__DIR__ . '/auth/smtp.json') ? __DIR__ . '/auth/smtp.json' : __DIR__ . '/comerciantes/smtp.json';
 if (is_file($smtpArquivo)) {
     $smtp = json_decode((string)file_get_contents($smtpArquivo), true);
     if (is_array($smtp) && !empty($smtp['host'])) {
@@ -39,12 +39,15 @@ unset($smtpArquivo);
 
 ini_set('display_errors', cfg('app.debug') ? '1' : '0');
 ini_set('log_errors', '1');
-ini_set('error_log', __DIR__ . '/logs/php-erros.log');
+ini_set('error_log', __DIR__ . '/logs/php_erros.log');
 error_reporting(E_ALL);
 date_default_timezone_set('America/Sao_Paulo');
 
 require __DIR__ . '/lib/http.php';
+require __DIR__ . '/lib/arquivos.php';
 require __DIR__ . '/lib/db.php';
+require __DIR__ . '/lib/comerciantes.php';
+require __DIR__ . '/lib/contas.php';
 require __DIR__ . '/lib/limites.php';
 require __DIR__ . '/lib/sessao.php';
 require __DIR__ . '/lib/permissoes.php';

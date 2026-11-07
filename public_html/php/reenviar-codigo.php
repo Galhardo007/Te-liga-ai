@@ -11,9 +11,9 @@ exigir_limite('reenvio-ip', ip_cliente(), 10, 3600);
 exigir_limite('reenvio-email', $email, 1, 60);
 exigir_limite('reenvio-email-hora', $email, 5, 3600);
 
-$u = linha("SELECT id, nome, email FROM usuarios WHERE email = ? AND status = 'pendente'", [$email]);
-if ($u) {
-    $codigo = criar_codigo((int)$u['id'], 'confirmar_email');
+$u = conta_por_email($email);
+if ($u && $u['status'] === 'pendente') {
+    $codigo = criar_codigo($u['ref'], 'confirmar_email');
     if (!enviar_codigo_por_email($u['email'], $u['nome'], $codigo, 'confirmar_email')) {
         falhar('Não foi possível reenviar agora. Tente de novo em instantes.', 502);
     }

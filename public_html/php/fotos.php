@@ -9,8 +9,7 @@ $u = exigir_login();
 exigir_csrf();
 exigir_permissao($u, 'perfil:editar');
 
-$pasta = rtrim((string)cfg('uploads.dir'), '/') . '/' . (int)$u['id'];
-$urlBase = rtrim((string)cfg('uploads.url'), '/') . '/' . (int)$u['id'];
+[$pasta, $urlBase] = pasta_fotos($u);
 
 function apagar_arquivo_publico(string $url, string $urlBase, string $pasta): void
 {
@@ -22,14 +21,24 @@ function apagar_arquivo_publico(string $url, string $urlBase, string $pasta): vo
 if (stripos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') === 0) {
     $d = ler_json();
     if (($d['acao'] ?? '') !== 'remover') falhar('Ação inválida.');
-    $f = linha('SELECT id, arquivo FROM usuario_fotos WHERE id = ? AND usuario_id = ?', [(int)($d['id'] ?? 0), $u['id']]);
-    if (!$f) falhar('Foto não encontrada.', 404);
-    consulta('DELETE FROM usuario_fotos WHERE id = ?', [$f['id']]);
-    apagar_arquivo_publico($f['arquivo'], $urlBase, $pasta);
+    $id = $d['id'] ?? null;
+    $url = null;
+    if ($u['tipo'] === 'anunciante') {
+        comerciante_atualizar($u['id'], function (array &$c) use ($id, &$url) {
+            foreach ($c['fotos'] as $i => $f) {
+                if ($f['id'] === $id) { $url = $f['url']; array_splice($c['fotos'], $i, 1); return; }
+            }
+        });
+    } else {
+        $f = linha('SELECT id, arquivo FROM usuario_fotos WHERE id = ? AND usuario_id = ?', [(int)$id, $u['id']]);
+        if ($f) { consulta('DELETE FROM usuario_fotos WHERE id = ?', [$f['id']]); $url = $f['arquivo']; }
+    }
+    if ($url === null) falhar('Foto não encontrada.', 404);
+    apagar_arquivo_publico($url, $urlBase, $pasta);
     responder(['sucesso' => true]);
 }
 
-exigir_limite('upload', (string)$u['id'], 30, 3600);
+exigir_limite('upload', $u['ref'], 30, 3600);
 $destino = ($_POST['destino'] ?? 'galeria') === 'perfil' ? 'perfil' : 'galeria';
 $arq = $_FILES['foto'] ?? null;
 if (!$arq || !is_array($arq) || ($arq['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || !is_uploaded_file($arq['tmp_name'])) {
@@ -38,8 +47,7 @@ if (!$arq || !is_array($arq) || ($arq['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD
 if ($arq['size'] > (int)cfg('uploads.max_bytes')) falhar('A imagem pode ter no máximo 5 MB.', 413, 'foto');
 
 if ($destino === 'galeria') {
-    $total = (int)linha('SELECT COUNT(*) n FROM usuario_fotos WHERE usuario_id = ?', [$u['id']])['n'];
-    if ($total >= (int)cfg('uploads.max_fotos')) falhar('Você atingiu o limite de fotos. Remova uma para enviar outra.', 422, 'foto');
+    if (count(fotos_da_conta($u)) >= (int)cfg('uploads.max_fotos')) falhar('Você atingiu o limite de fotos. Remova uma para enviar outra.', 422, 'foto');
 }
 
 // confere o conteúdo real (não a extensão) e regrava a imagem: remove EXIF/GPS e qualquer código escondido
@@ -73,8 +81,18 @@ $url = "$urlBase/$nomeArq";
 
 if ($destino === 'perfil') {
     if ($u['foto_perfil']) apagar_arquivo_publico($u['foto_perfil'], $urlBase, $pasta);
-    consulta('UPDATE usuarios SET foto_perfil = ? WHERE id = ?', [$url, $u['id']]);
+    conta_atualizar($u, ['foto_perfil' => $url]);
     responder(['sucesso' => true, 'foto' => ['url' => $url]]);
+}
+if ($u['tipo'] === 'anunciante') {
+    $id = bin2hex(random_bytes(6));
+    $cheio = false;
+    comerciante_atualizar($u['id'], function (array &$c) use ($id, $url, &$cheio) {
+        if (count($c['fotos']) >= (int)cfg('uploads.max_fotos')) { $cheio = true; return; }
+        $c['fotos'][] = ['id' => $id, 'url' => $url, 'criado_em' => agora()];
+    });
+    if ($cheio) { apagar_arquivo_publico($url, $urlBase, $pasta); falhar('Você atingiu o limite de fotos.', 422, 'foto'); }
+    responder(['sucesso' => true, 'foto' => ['id' => $id, 'url' => $url]]);
 }
 consulta('INSERT INTO usuario_fotos (usuario_id, arquivo) VALUES (?, ?)', [$u['id'], $url]);
 responder(['sucesso' => true, 'foto' => ['id' => (int)db()->lastInsertId(), 'url' => $url]]);

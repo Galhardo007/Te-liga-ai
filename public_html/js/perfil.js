@@ -47,7 +47,7 @@ function preencher(dados) {
   TLA.guardarUsuario(u);
   $('p-nome').textContent = u.nome;
   var selo = $('p-tipo');
-  selo.textContent = u.tipo === 'anunciante' ? 'Anunciante' : (u.tipo === 'admin' ? 'Administrador' : 'Usuário');
+  selo.textContent = u.tipo === 'anunciante' ? 'Anunciante' : (u.admin ? 'Administrador' : 'Usuário');
   selo.className = 'selo ' + u.tipo;
   desenharAvatar(u);
   $('nome').value = u.nome;
@@ -56,6 +56,7 @@ function preencher(dados) {
   $('cidade').value = u.cidade;
   $('bio').value = u.bio || '';
   $('bloco-negocio').hidden = u.tipo !== 'anunciante';
+  $('link-chat').hidden = (u.permissoes || []).indexOf('chat:usar') === -1 || u.tipo !== 'usuario';
   if (u.negocio) {
     $('negocio_nome').value = u.negocio.nome || '';
     $('negocio_categoria').value = u.negocio.categoria || '';

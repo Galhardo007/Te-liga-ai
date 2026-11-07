@@ -1,10 +1,15 @@
 <?php
 declare(strict_types=1);
 
+// Sessões gravadas em private/sessions (fora do public_html). Guardam só a ref da conta ("u12" ou "c…").
+
 function iniciar_sessao(): void
 {
     $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
         || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+    $pasta = TLA_PRIVADO . '/sessions';
+    garantir_pasta($pasta);
+    session_save_path($pasta);
     session_name('tla_sid');
     session_set_cookie_params([
         'lifetime' => 0,
@@ -13,11 +18,14 @@ function iniciar_sessao(): void
         'httponly' => true,
         'samesite' => 'Lax',
     ]);
+    $ocioso = (int)cfg('seguranca.sessao_ociosa_min', 10080) * 60;
     ini_set('session.use_strict_mode', '1');
-    ini_set('session.gc_maxlifetime', (string)(cfg('seguranca.sessao_ociosa_min', 10080) * 60));
+    ini_set('session.gc_maxlifetime', (string)$ocioso);
+    // pasta própria: o PHP precisa limpar as sessões velhas sozinho (o cron do Debian só limpa a pasta padrão)
+    ini_set('session.gc_probability', '1');
+    ini_set('session.gc_divisor', '1000');
     session_start();
 
-    $ocioso = cfg('seguranca.sessao_ociosa_min', 10080) * 60;
     if (isset($_SESSION['visto']) && time() - $_SESSION['visto'] > $ocioso) {
         encerrar_sessao();
         session_start();
@@ -26,13 +34,13 @@ function iniciar_sessao(): void
     if (empty($_SESSION['csrf'])) $_SESSION['csrf'] = bin2hex(random_bytes(32));
 }
 
-function entrar(array $usuario): void
+function entrar(array $conta): void
 {
     session_regenerate_id(true);
-    $_SESSION['uid'] = (int)$usuario['id'];
-    $_SESSION['versao'] = (int)$usuario['sessao_versao'];
+    $_SESSION['conta'] = $conta['ref'];
+    $_SESSION['versao'] = (int)$conta['sessao_versao'];
     $_SESSION['csrf'] = bin2hex(random_bytes(32));
-    consulta('UPDATE usuarios SET ultimo_login_em = NOW() WHERE id = ?', [$usuario['id']]);
+    conta_atualizar($conta, ['ultimo_login_em' => agora()]);
 }
 
 function encerrar_sessao(): void
@@ -45,26 +53,26 @@ function encerrar_sessao(): void
     session_destroy();
 }
 
-/** Usuário da sessão atual (ou null). Troca de senha / bloqueio derruba a sessão na hora. */
+/** Conta da sessão atual (ou null). Troca de senha / bloqueio derruba a sessão na hora. */
 function usuario_logado(): ?array
 {
     static $cache = false;
     if ($cache !== false) return $cache;
     $cache = null;
-    if (empty($_SESSION['uid'])) return null;
-    $u = linha('SELECT * FROM usuarios WHERE id = ?', [$_SESSION['uid']]);
-    if (!$u || $u['status'] !== 'ativo' || (int)$u['sessao_versao'] !== (int)($_SESSION['versao'] ?? 0)) {
-        unset($_SESSION['uid'], $_SESSION['versao']);
+    if (empty($_SESSION['conta']) || !is_string($_SESSION['conta'])) return null;
+    $c = conta_por_ref($_SESSION['conta']);
+    if (!$c || $c['status'] !== 'ativo' || $c['sessao_versao'] !== (int)($_SESSION['versao'] ?? 0)) {
+        unset($_SESSION['conta'], $_SESSION['versao']);
         return null;
     }
-    return $cache = $u;
+    return $cache = $c;
 }
 
 function exigir_login(): array
 {
-    $u = usuario_logado();
-    if (!$u) falhar('Entre na sua conta para continuar.', 401);
-    return $u;
+    $c = usuario_logado();
+    if (!$c) falhar('Entre na sua conta para continuar.', 401);
+    return $c;
 }
 
 /** Para POSTs de quem está logado: o front manda o token no cabeçalho X-CSRF-Token. */
@@ -76,27 +84,28 @@ function exigir_csrf(): void
     }
 }
 
-/** O que pode ir para o navegador (nunca senha_hash etc.). */
-function usuario_publico(array $u): array
+/** O que pode ir para o navegador da própria pessoa (nunca senha_hash etc.). */
+function usuario_publico(array $c): array
 {
     $dados = [
-        'id'         => (int)$u['id'],
-        'nome'       => $u['nome'],
-        'email'      => $u['email'],
-        'whatsapp'   => $u['whatsapp'],
-        'cidade'     => $u['cidade'],
-        'bio'        => $u['bio'],
-        'tipo'       => $u['tipo'],
-        'foto'       => $u['foto_perfil'],
-        'permissoes' => permissoes_do_usuario((int)$u['id'], $u['tipo']),
+        'id'         => $c['id'],
+        'nome'       => $c['nome'],
+        'email'      => $c['email'],
+        'whatsapp'   => $c['whatsapp'],
+        'cidade'     => $c['cidade'],
+        'bio'        => $c['bio'],
+        'tipo'       => $c['tipo'],
+        'admin'      => eh_admin($c),
+        'foto'       => $c['foto_perfil'],
+        'permissoes' => permissoes_da_conta($c),
     ];
-    if ($u['tipo'] === 'anunciante') {
-        $a = linha('SELECT nome_negocio, categoria, verificado_em FROM anunciantes WHERE usuario_id = ?', [$u['id']]);
+    if ($c['tipo'] === 'anunciante') {
         $dados['negocio'] = [
-            'nome'       => $a['nome_negocio'] ?? null,
-            'categoria'  => $a['categoria'] ?? null,
-            'verificado' => !empty($a['verificado_em']),
+            'nome'       => $c['negocio']['nome'] ?? null,
+            'categoria'  => $c['negocio']['categoria'] ?? null,
+            'verificado' => !empty($c['negocio']['verificado_em']),
         ];
+        $dados['publicacoes_por_dia'] = limite_publicacoes_dia($c);
     }
     return $dados;
 }

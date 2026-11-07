@@ -26,32 +26,12 @@ if ($e = validar_senha($senha))       falhar($e, 422, 'senha');
 if (!in_array($tipo, TIPOS_CADASTRO, true)) falhar('Escolha o tipo de conta para continuar.', 422, 'tipo');
 if (($d['aceite'] ?? false) !== true) falhar('Para criar a conta, aceite os termos de uso e a política de privacidade.', 422, 'aceite');
 
-$pdo = db();
-$pdo->beginTransaction();
-$existente = linha('SELECT id, status FROM usuarios WHERE email = ? FOR UPDATE', [$email]);
-
-if ($existente && $existente['status'] !== 'pendente') {
-    $pdo->rollBack();
-    falhar('Este e-mail já tem conta. Entre ou use "Esqueci a senha".', 409, 'email');
-}
-
-$hash = gerar_hash_senha($senha);
-if ($existente) {
-    // conta nunca confirmada: quem tem acesso ao e-mail pode refazer o cadastro
-    $id = (int)$existente['id'];
-    consulta('UPDATE usuarios SET tipo=?, nome=?, whatsapp=?, cidade=?, senha_hash=?, aceite_termos_em=NOW() WHERE id=?',
-        [$tipo, $nome, $whatsapp, $cidade, $hash, $id]);
-    consulta('DELETE FROM anunciantes WHERE usuario_id = ?', [$id]);
-} else {
-    consulta('INSERT INTO usuarios (tipo, nome, email, whatsapp, cidade, senha_hash, status, aceite_termos_em)
-              VALUES (?, ?, ?, ?, ?, ?, \'pendente\', NOW())', [$tipo, $nome, $email, $whatsapp, $cidade, $hash]);
-    $id = (int)$pdo->lastInsertId();
-}
-if ($tipo === 'anunciante') {
-    consulta('INSERT INTO anunciantes (usuario_id) VALUES (?)', [$id]);
-}
-$codigo = criar_codigo($id, 'confirmar_email');
-$pdo->commit();
+$conta = conta_cadastrar($tipo, [
+    'nome' => $nome, 'email' => $email, 'whatsapp' => $whatsapp, 'cidade' => $cidade,
+    'senha_hash' => gerar_hash_senha($senha),
+]);
+if (!$conta) falhar('Este e-mail já tem conta. Entre ou use "Esqueci a senha".', 409, 'email');
+$codigo = criar_codigo($conta['ref'], 'confirmar_email');
 
 dentro_do_limite('reenvio-email', $email, 99, 60); // conta este envio para o intervalo de reenvio
 if (!enviar_codigo_por_email($email, $nome, $codigo, 'confirmar_email')) {

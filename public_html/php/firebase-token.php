@@ -7,8 +7,9 @@ require TLA_PRIVADO . '/lib/firebase.php';
 exigir_metodo('POST');
 $u = exigir_login();
 exigir_csrf();
+if ($u['tipo'] !== 'usuario') falhar('O chat é só para contas de usuário.', 403);
 exigir_permissao($u, 'chat:usar');
-exigir_limite('firebase-token', (string)$u['id'], 60, 3600);
+exigir_limite('firebase-token', $u['ref'], 60, 3600);
 
 $token = firebase_token_personalizado(firebase_uid((int)$u['id']), [
     'tipo' => $u['tipo'],

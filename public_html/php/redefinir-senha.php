@@ -12,13 +12,12 @@ $senha = $d['senha'] ?? '';
 exigir_limite('redefinir-ip', ip_cliente(), 30, 900);
 if ($e = validar_senha($senha)) falhar($e, 422, 'senha');
 
-$u = linha("SELECT * FROM usuarios WHERE email = ? AND status = 'ativo'", [$email]);
-if (!$u || !conferir_codigo((int)$u['id'], 'redefinir_senha', $codigo)) {
+$u = conta_por_email($email);
+if (!$u || $u['status'] !== 'ativo' || !conferir_codigo($u['ref'], 'redefinir_senha', $codigo)) {
     falhar('Código incorreto ou vencido. Confira e tente de novo.', 400, 'codigo');
 }
 
 // troca a senha e derruba todas as sessões abertas (sessao_versao + 1)
-consulta('UPDATE usuarios SET senha_hash = ?, sessao_versao = sessao_versao + 1 WHERE id = ?',
-    [gerar_hash_senha($senha), $u['id']]);
+conta_atualizar($u, ['senha_hash' => gerar_hash_senha($senha)], true);
 zerar_limite('login-email', $email);
 responder(['sucesso' => true]);

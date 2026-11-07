@@ -11,7 +11,7 @@ $senha = is_string($d['senha'] ?? null) ? $d['senha'] : '';
 exigir_limite('login-ip', ip_cliente(), 30, 900);
 exigir_limite('login-email', $email, 8, 900);
 
-$u = linha('SELECT * FROM usuarios WHERE email = ?', [$email]);
+$u = conta_por_email($email);
 // password_verify roda mesmo sem conta, para o tempo de resposta não denunciar quem existe
 $hash = $u['senha_hash'] ?? '$2y$10$usesomesillystringforsaltDGqjNf3D0w5Uq8.1hTXlaK1Ag6cYO';
 if (!password_verify($senha, $hash) || !$u) {
@@ -22,7 +22,7 @@ if ($u['status'] === 'pendente') {
     falhar('Confirme seu e-mail para entrar. Enviamos um código quando você se cadastrou.', 403, null, ['confirmacao' => true]);
 }
 if (password_needs_rehash($u['senha_hash'], defined('PASSWORD_ARGON2ID') ? PASSWORD_ARGON2ID : PASSWORD_DEFAULT)) {
-    consulta('UPDATE usuarios SET senha_hash = ? WHERE id = ?', [gerar_hash_senha($senha), $u['id']]);
+    $u = conta_atualizar($u, ['senha_hash' => gerar_hash_senha($senha)]);
 }
 zerar_limite('login-email', $email);
 entrar($u);

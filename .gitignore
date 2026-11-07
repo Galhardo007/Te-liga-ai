@@ -18,6 +18,15 @@ private/config.php
 private/firebase/*.json
 private/auth/*
 !private/auth/*.exemplo.json
+private/comerciantes/*
+!private/comerciantes/.gitkeep
+private/security/*
+!private/security/.gitkeep
+private/data/*
+!private/data/.gitkeep
+private/sessions/*
+!private/sessions/.gitkeep
 private/logs/*
 !private/logs/.gitkeep
 public_html/uploads/u/
+public_html/uploads/c/

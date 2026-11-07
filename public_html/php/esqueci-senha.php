@@ -12,9 +12,9 @@ exigir_limite('esqueci-ip', ip_cliente(), 10, 3600);
 exigir_limite('esqueci-email', $email, 1, 60);
 exigir_limite('esqueci-email-hora', $email, 5, 3600);
 
-$u = linha("SELECT id, nome, email FROM usuarios WHERE email = ? AND status = 'ativo'", [$email]);
-if ($u) {
-    $codigo = criar_codigo((int)$u['id'], 'redefinir_senha');
+$u = conta_por_email($email);
+if ($u && $u['status'] === 'ativo') {
+    $codigo = criar_codigo($u['ref'], 'redefinir_senha');
     enviar_codigo_por_email($u['email'], $u['nome'], $codigo, 'redefinir_senha');
 }
 // sempre a mesma resposta: ninguém descobre se um e-mail tem conta

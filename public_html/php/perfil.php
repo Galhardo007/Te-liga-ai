@@ -20,21 +20,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($e = validar_whatsapp($whatsapp)) falhar($e, 422, 'whatsapp');
     if (mb_strlen($cidade) < 2)           falhar('Digite sua cidade.', 422, 'cidade');
 
-    consulta('UPDATE usuarios SET nome = ?, whatsapp = ?, cidade = ?, bio = ? WHERE id = ?',
-        [$nome, $whatsapp, $cidade, $bio !== '' ? $bio : null, $u['id']]);
-
+    $campos = ['nome' => $nome, 'whatsapp' => $whatsapp, 'cidade' => $cidade, 'bio' => $bio !== '' ? $bio : null];
     if ($u['tipo'] === 'anunciante') {
         $negocio = texto($d['negocio_nome'] ?? '', 120);
         $categoria = texto($d['negocio_categoria'] ?? '', 60);
-        consulta('INSERT INTO anunciantes (usuario_id, nome_negocio, categoria) VALUES (?, ?, ?)
-                  ON DUPLICATE KEY UPDATE nome_negocio = VALUES(nome_negocio), categoria = VALUES(categoria)',
-            [$u['id'], $negocio ?: null, $categoria ?: null]);
+        $u = conta_de_comerciante(comerciante_atualizar($u['id'], function (array &$c) use ($campos, $negocio, $categoria) {
+            foreach ($campos as $k => $v) $c[$k] = $v;
+            $c['negocio']['nome'] = $negocio ?: null;
+            $c['negocio']['categoria'] = $categoria ?: null;
+        }));
+    } else {
+        $u = conta_atualizar($u, $campos);
     }
-    $u = linha('SELECT * FROM usuarios WHERE id = ?', [$u['id']]);
 }
 
-$fotos = consulta('SELECT id, arquivo FROM usuario_fotos WHERE usuario_id = ? ORDER BY id', [$u['id']])->fetchAll();
-$perms = permissoes_do_usuario((int)$u['id'], $u['tipo']);
+$perms = permissoes_da_conta($u);
 $secoes = array_values(array_filter(
     consulta('SELECT slug, nome FROM secoes ORDER BY nome')->fetchAll(),
     fn($s) => in_array('publicar:' . $s['slug'], $perms, true)
@@ -43,6 +43,6 @@ $secoes = array_values(array_filter(
 responder([
     'sucesso' => true,
     'usuario' => usuario_publico($u),
-    'fotos'   => array_map(fn($f) => ['id' => (int)$f['id'], 'url' => $f['arquivo']], $fotos),
+    'fotos'   => fotos_da_conta($u),
     'secoes'  => $secoes,
 ]);

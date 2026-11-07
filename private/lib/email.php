@@ -24,21 +24,63 @@ function enviar_email(string $para, string $assunto, string $texto, string $html
         . chunk_split(base64_encode($html))
         . "--$limite--\r\n";
 
+    if (!pode_enviar_email($para)) {
+        registrar_email($para, $assunto, $modo, false, 'limite de envio atingido');
+        return false;
+    }
     try {
         if ($modo === 'log') {
-            file_put_contents(TLA_PRIVADO . '/logs/emails.log',
-                '[' . date('c') . "] Para: $para | $assunto\n$texto\n\n", FILE_APPEND | LOCK_EX);
+            registrar_email($para, $assunto, $modo, true, null, $texto);
             return true;
         }
         if ($modo === 'mail') {
             $extra = array_filter($cabecalhos, fn($h) => !preg_match('/^(To|Subject):/i', $h));
-            return mail($para, $assuntoCod, $corpo, implode("\r\n", $extra), '-f' . $de);
+            $ok = mail($para, $assuntoCod, $corpo, implode("\r\n", $extra), '-f' . $de);
+        } else {
+            $ok = smtp_enviar($de, $para, implode("\r\n", $cabecalhos) . "\r\n\r\n" . $corpo);
         }
-        return smtp_enviar($de, $para, implode("\r\n", $cabecalhos) . "\r\n\r\n" . $corpo);
+        registrar_email($para, $assunto, $modo, $ok);
+        return $ok;
     } catch (Throwable $e) {
         error_log('[email] ' . $e->getMessage());
+        registrar_email($para, $assunto, $modo, false, $e->getMessage());
         return false;
     }
+}
+
+/**
+ * Freio de envio em private/data/emails_enviados.json: no máximo N por endereço por hora
+ * e um teto por dia (o Gmail bloqueia a conta acima de ~500/dia).
+ */
+function pode_enviar_email(string $para): bool
+{
+    $porHora = (int)cfg('email.max_por_endereco_hora', 6);
+    $porDia = (int)cfg('email.max_por_dia', 450);
+    return json_atualizar(TLA_PRIVADO . '/data/emails_enviados.json', function (array &$d) use ($para, $porHora, $porDia): bool {
+        $hoje = date('Y-m-d');
+        $agora = time();
+        if (($d['dia'] ?? '') !== $hoje) $d = ['dia' => $hoje, 'total' => 0, 'por_endereco' => []];
+        foreach ($d['por_endereco'] as $k => $lista) {
+            $lista = array_values(array_filter($lista, fn($t) => $agora - $t < 3600));
+            if ($lista) $d['por_endereco'][$k] = $lista; else unset($d['por_endereco'][$k]);
+        }
+        $k = hash_hmac('sha256', mb_strtolower($para), (string)cfg('app.segredo'));
+        if ($d['total'] >= $porDia || count($d['por_endereco'][$k] ?? []) >= $porHora) return false;
+        $d['total']++;
+        $d['por_endereco'][$k][] = $agora;
+        return true;
+    });
+}
+
+/** Histórico em private/logs/emails_enviados.json (uma linha JSON por envio). Códigos só aparecem no modo 'log' (testes). */
+function registrar_email(string $para, string $assunto, string $modo, bool $ok, ?string $erro = null, ?string $texto = null): void
+{
+    $linha = ['quando' => date('c'), 'para' => $para, 'modo' => $modo, 'ok' => $ok,
+        'assunto' => $modo === 'log' ? $assunto : preg_replace('/\b\d{6}\b/', '******', $assunto)];
+    if ($erro !== null) $linha['erro'] = $erro;
+    if ($texto !== null) $linha['texto'] = $texto;
+    file_put_contents(TLA_PRIVADO . '/logs/emails_enviados.json',
+        json_encode($linha, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n", FILE_APPEND | LOCK_EX);
 }
 
 /** Cliente SMTP mínimo (SSL/STARTTLS + AUTH LOGIN), sem bibliotecas externas. */
