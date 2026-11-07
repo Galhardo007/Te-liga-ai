@@ -1,0 +1,62 @@
+/* ═══ páginas de conta (login, esqueci a senha, perfil, chat) — complementa cadastro.css ═══ */
+.campo textarea {
+  width: 100%; min-height: 96px; padding: 12px 14px;
+  background: var(--campo); color: var(--txt);
+  border: 1.5px solid var(--linha); border-radius: 12px;
+  font: inherit; font-size: 16px; resize: vertical;
+}
+.campo textarea:focus { outline: none; border-color: var(--rosa); }
+.campo input[disabled] { opacity: .7; }
+
+.cad-card + .cad-card { margin-top: 16px; }
+.linha-acoes { display: flex; gap: 12px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+.link-direita { display: block; text-align: right; margin: -8px 0 16px; font-size: .9rem; color: var(--mut); }
+
+/* perfil */
+.perfil-topo { display: flex; gap: 16px; align-items: center; margin-bottom: 8px; }
+.avatar {
+  width: 88px; height: 88px; border-radius: 50%; object-fit: cover; flex: none;
+  background: var(--campo); border: 2px solid var(--linha);
+  display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; color: var(--mut);
+}
+.perfil-topo h1 { margin: 0; font-size: 1.35rem; line-height: 1.2; }
+.selo {
+  display: inline-block; margin-top: 6px; padding: 2px 10px; border-radius: 999px;
+  font-size: .78rem; font-weight: 700; background: var(--campo); border: 1px solid var(--linha);
+}
+.selo.anunciante { background: var(--grad); color: #fff; border: 0; }
+.botao-arquivo { position: relative; overflow: hidden; display: inline-block; }
+.botao-arquivo input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+.galeria { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+.galeria figure { margin: 0; position: relative; aspect-ratio: 1; }
+.galeria img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+.galeria button {
+  position: absolute; top: 4px; right: 4px; width: 30px; height: 30px; border-radius: 50%;
+  border: 0; background: rgba(0,0,0,.65); color: #fff; font-size: 1rem; cursor: pointer;
+}
+.vazio { color: var(--mut); font-size: .9rem; }
+.lista-permissoes { margin: 8px 0 0; padding-left: 20px; }
+.btn-sec {
+  background: transparent; color: var(--txt); border: 1.5px solid var(--linha);
+}
+
+/* chat */
+.chat { display: grid; grid-template-columns: 1fr; gap: 12px; }
+.conversas { list-style: none; margin: 0; padding: 0; }
+.conversas li button {
+  width: 100%; text-align: left; padding: 12px; border: 0; border-bottom: 1px solid var(--linha);
+  background: none; font: inherit; cursor: pointer;
+}
+.conversas li button[aria-current="true"] { background: var(--campo); font-weight: 700; }
+.mensagens { height: 55vh; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 8px 0; }
+.msg { max-width: 80%; padding: 8px 12px; border-radius: 14px; background: var(--campo); word-wrap: break-word; white-space: pre-wrap; }
+.msg.minha { align-self: flex-end; background: var(--rosa); color: #fff; }
+.msg small { display: block; opacity: .7; font-size: .7rem; margin-top: 2px; }
+.form-msg { display: flex; gap: 8px; }
+.form-msg input { flex: 1; min-height: 48px; padding: 12px 14px; border: 1.5px solid var(--linha); border-radius: 12px; font: inherit; font-size: 16px; }
+.form-msg .btn { width: auto; padding: 0 18px; margin: 0; }
+@media (min-width: 760px) {
+  .cad.larga { max-width: 900px; }
+  .chat { grid-template-columns: 280px 1fr; }
+}

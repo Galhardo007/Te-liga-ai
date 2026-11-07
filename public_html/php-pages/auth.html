@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070910">
+<title>Entrar — Te Liga Aí</title>
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="stylesheet" href="/css/cadastro.css">
+<link rel="stylesheet" href="/css/conta.css">
+<script src="/js/api.js" defer></script>
+<script src="/js/auth.js" defer></script>
+</head>
+<body>
+<main class="cad">
+<a class="cad-voltar" href="/" aria-label="Voltar para o início">‹ Voltar</a>
+<header class="cad-topo">
+<img src="/assets/logo.svg" alt="" width="44" height="44">
+<h1>Entrar</h1>
+<p>Usuários e anunciantes entram por aqui.</p>
+</header>
+
+<section class="cad-card">
+<form id="form-login" novalidate autocomplete="on">
+<div class="campo" id="campo-email">
+<label for="email">E-mail</label>
+<input id="email" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" maxlength="120" required aria-describedby="erro-email">
+<p class="erro" id="erro-email" role="alert"></p>
+</div>
+<div class="campo" id="campo-senha">
+<label for="senha">Senha</label>
+<div class="senha-linha">
+<input id="senha" name="senha" type="password" autocomplete="current-password" maxlength="128" required aria-describedby="erro-senha">
+<button type="button" class="ver-senha" id="ver-senha" aria-pressed="false" aria-label="Mostrar senha">Mostrar</button>
+</div>
+<p class="erro" id="erro-senha" role="alert"></p>
+</div>
+<a class="link-direita" href="/esqueci-senha.html">Esqueci a senha</a>
+<p class="erro geral" id="erro-geral" role="alert"></p>
+<button class="btn" id="btn-entrar" type="submit">Entrar</button>
+</form>
+<p class="cad-rodape">Ainda não tem conta? <a href="/cadastro.html">Criar conta</a></p>
+</section>
+</main>
+</body>
+</html>

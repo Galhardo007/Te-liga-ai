@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070910">
+<title>Criar conta — Te Liga Aí</title>
+<meta name="description" content="Crie sua conta no Te Liga Aí e faça parte da comunidade de Gravataí e Cachoeirinha. Escolha entre conta de usuário e conta de anunciante.">
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+<link rel="stylesheet" href="/css/cadastro.css">
+<script src="/js/cadastro.js" defer></script>
+</head>
+<body>
+
+
+<main class="cad">
+
+
+<a class="cad-voltar" href="/" aria-label="Voltar para o início">‹ Voltar</a>
+
+
+<header class="cad-topo">
+<img src="/assets/logo.svg" alt="" width="44" height="44">
+<h1>Criar conta</h1>
+<p>Em menos de um minuto você entra na comunidade do Te Liga Aí, em Gravataí e Cachoeirinha.</p>
+</header>
+
+
+<!-- ETAPA 1: formulário -->
+<section class="cad-card" id="painel-cadastro" aria-labelledby="titulo-cadastro">
+<h2 id="titulo-cadastro" class="so-leitor">Formulário de cadastro</h2>
+
+
+<form id="form-cadastro" novalidate autocomplete="on">
+
+
+<div class="campo" id="campo-nome">
+<label for="nome">Nome completo</label>
+<input id="nome" name="nome" type="text" autocomplete="name" maxlength="80" autocapitalize="words" enterkeyhint="next" required aria-describedby="erro-nome">
+<p class="erro" id="erro-nome" role="alert"></p>
+</div>
+
+
+<div class="campo" id="campo-email">
+<label for="email">E-mail</label>
+<input id="email" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" maxlength="120" enterkeyhint="next" required aria-describedby="dica-email erro-email">
+<p class="dica" id="dica-email">Você vai usar este e-mail para entrar.</p>
+<p class="erro" id="erro-email" role="alert"></p>
+</div>
+
+
+<div class="campo" id="campo-whatsapp">
+<label for="whatsapp">WhatsApp</label>
+<input id="whatsapp" name="whatsapp" type="tel" autocomplete="tel-national" inputmode="numeric" placeholder="(51) 99999-9999" maxlength="15" enterkeyhint="next" required aria-describedby="dica-whatsapp erro-whatsapp">
+<p class="dica" id="dica-whatsapp">Fica guardado só para o seu cadastro e não aparece para outras pessoas.</p>
+<p class="erro" id="erro-whatsapp" role="alert"></p>
+</div>
+
+
+<div class="campo" id="campo-cidade">
+<label for="cidade">Cidade</label>
+<input id="cidade" name="cidade" type="text" autocomplete="address-level2" maxlength="80" autocapitalize="words" enterkeyhint="next" required placeholder="Ex.: Gravataí" aria-describedby="erro-cidade">
+<p class="erro" id="erro-cidade" role="alert"></p>
+</div>
+
+
+<div class="campo" id="campo-senha">
+<label for="senha">Senha</label>
+<div class="senha-linha">
+<input id="senha" name="senha" type="password" autocomplete="new-password" minlength="8" maxlength="128" enterkeyhint="next" required aria-describedby="dica-senha erro-senha">
+<button type="button" class="ver-senha" id="ver-senha" aria-pressed="false" aria-label="Mostrar senhas">Mostrar</button>
+</div>
+<div class="forca" aria-hidden="true"><span id="forca-barra"></span></div>
+<p class="dica" id="dica-senha">Use pelo menos 8 caracteres. <span id="forca-texto"></span></p>
+<p class="erro" id="erro-senha" role="alert"></p>
+</div>
+
+
+<div class="campo" id="campo-senha2">
+<label for="senha2">Repita a senha</label>
+<input id="senha2" name="senha2" type="password" autocomplete="new-password" maxlength="128" enterkeyhint="next" required aria-describedby="erro-senha2">
+<p class="erro" id="erro-senha2" role="alert"></p>
+</div>
+
+
+<fieldset class="tipos" id="campo-tipo" aria-describedby="erro-tipo">
+<legend>Como você vai usar o Te Liga Aí?</legend>
+<p class="tipos-ajuda">Escolha com atenção: o tipo da conta define o que você poderá publicar na plataforma.</p>
+
+
+<label class="tipo">
+<input type="radio" name="tipo" value="usuario" required>
+<span class="tipo-corpo">
+<strong><span aria-hidden="true">👤</span> Conta de usuário</strong>
+<span>Para quem quer usar a plataforma: acompanhar publicações, interagir e descobrir novidades na região.</span>
+</span>
+</label>
+
+
+<label class="tipo">
+<input type="radio" name="tipo" value="anunciante" required>
+<span class="tipo-corpo">
+<strong><span aria-hidden="true">🏪</span> Conta de anunciante</strong>
+<span>Para comerciantes, empresas, profissionais autônomos e prestadores de serviços que querem divulgar seus negócios, produtos e serviços.</span>
+</span>
+</label>
+
+
+<p class="erro" id="erro-tipo" role="alert"></p>
+</fieldset>
+
+
+<div class="campo aceite-campo" id="campo-aceite">
+<label class="aceite">
+<input type="checkbox" id="aceite" name="aceite" required aria-describedby="erro-aceite">
+<span>Li e aceito os <a href="/termos-de-uso.html" target="_blank" rel="noopener">Termos de uso</a> e a <a href="/politica-de-privacidade.html" target="_blank" rel="noopener">Política de privacidade</a>.</span>
+</label>
+<p class="erro" id="erro-aceite" role="alert"></p>
+</div>
+
+
+<!-- armadilha para robôs: pessoas não veem nem preenchem -->
+<div class="hp" aria-hidden="true">
+<label for="website_hp">Não preencha este campo</label>
+<input id="website_hp" name="website_hp" type="text" tabindex="-1" autocomplete="off">
+</div>
+
+
+<p class="erro geral" id="erro-geral" role="alert"></p>
+
+
+<button class="btn" id="btn-criar" type="submit">Criar minha conta</button>
+
+
+<p class="cad-rodape">Já tem conta? <a href="/php-pages/auth.html">Entrar</a></p>
+</form>
+</section>
+
+
+<!-- ETAPA 2: código enviado por e-mail -->
+<section class="cad-card" id="painel-codigo" aria-labelledby="titulo-codigo" hidden>
+<h2 id="titulo-codigo">Confirme seu e-mail</h2>
+<p class="codigo-texto">Enviamos um código de 6 números para <strong id="codigo-email"></strong>. Digite abaixo para ativar sua conta.</p>
+
+
+<form id="form-codigo" novalidate>
+<div class="campo">
+<label for="codigo">Código de confirmação</label>
+<input id="codigo" name="codigo" type="text" class="codigo-input" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" placeholder="000000" aria-describedby="erro-codigo">
+<p class="erro" id="erro-codigo" role="alert"></p>
+</div>
+<button class="btn" id="btn-confirmar" type="submit">Confirmar</button>
+</form>
+
+
+<p class="cad-rodape">
+      Não chegou? Veja a caixa de spam ou
+<button type="button" class="link-btn" id="btn-reenviar">reenviar o código</button>
+</p>
+<p class="ok" id="ok-codigo" role="status"></p>
+</section>
+
+
+<!-- ETAPA 3: pronto -->
+<section class="cad-card cad-pronto" id="painel-pronto" hidden>
+<div class="pronto-icone" aria-hidden="true">✓</div>
+<h2>Conta criada!</h2>
+<p>Pronto, você já faz parte do Te Liga Aí. Levando você para o início…</p>
+<a class="btn btn-link" href="/">Ir agora</a>
+</section>
+
+
+</main>
+</body>
+</html>

@@ -1,0 +1,2 @@
+# Esta pasta nunca deve ser servida pela web. Se por engano ficar dentro do public_html, o Apache bloqueia.
+Require all denied

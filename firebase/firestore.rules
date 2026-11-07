@@ -1,0 +1,41 @@
+rules_version = '2';
+// Te Liga Aí — regras do chat. Publique no Console Firebase > Firestore > Regras (ou: firebase deploy --only firestore:rules).
+// request.auth.uid = "u" + id do MySQL; request.auth.token.tipo = 'usuario' (só contas de usuário recebem token do chat).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function logado() { return request.auth != null; }
+    function participa(c) { return logado() && request.auth.uid in c.participantes; }
+
+    match /conversas/{conversaId} {
+      allow read: if logado() && (resource == null || request.auth.uid in resource.data.participantes);
+
+      // o id é "uidA_uidB" em ordem; quem cria precisa ser um dos dois
+      allow create: if logado()
+        && request.resource.data.participantes is list
+        && request.resource.data.participantes.size() == 2
+        && request.auth.uid in request.resource.data.participantes
+        && conversaId == request.resource.data.participantes[0] + '_' + request.resource.data.participantes[1]
+        && request.resource.data.keys().hasOnly(['participantes', 'nomes', 'ultimaMensagem', 'atualizadoEm']);
+
+      allow update: if participa(resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ultimaMensagem', 'atualizadoEm'])
+        && request.resource.data.ultimaMensagem is string
+        && request.resource.data.ultimaMensagem.size() <= 100;
+
+      allow delete: if false;
+
+      match /mensagens/{mensagemId} {
+        allow read: if participa(get(/databases/$(database)/documents/conversas/$(conversaId)).data);
+        allow create: if participa(get(/databases/$(database)/documents/conversas/$(conversaId)).data)
+          && request.resource.data.keys().hasOnly(['autor', 'texto', 'criadoEm'])
+          && request.resource.data.autor == request.auth.uid
+          && request.resource.data.texto is string
+          && request.resource.data.texto.size() > 0
+          && request.resource.data.texto.size() <= 2000
+          && request.resource.data.criadoEm == request.time;
+        allow update, delete: if false;
+      }
+    }
+  }
+}
