@@ -1,0 +1,14 @@
+# Uploads são só imagens: nada aqui pode ser executado
+<FilesMatch "\.(?i:php\d?|phtml|phar|pl|py|cgi|sh|html?|js|svg)$">
+  Require all denied
+</FilesMatch>
+Options -Indexes -ExecCGI
+<IfModule mod_php.c>
+  php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+  php_flag engine off
+</IfModule>
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+</IfModule>

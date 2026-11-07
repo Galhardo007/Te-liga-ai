@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070910">
+<title>Esqueci a senha — Te Liga Aí</title>
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="stylesheet" href="/css/cadastro.css">
+<link rel="stylesheet" href="/css/conta.css">
+<script src="/js/api.js" defer></script>
+<script src="/js/esqueci-senha.js" defer></script>
+</head>
+<body>
+<main class="cad">
+<a class="cad-voltar" href="/php-pages/auth.html">‹ Voltar para o login</a>
+<header class="cad-topo">
+<img src="/assets/logo.svg" alt="" width="44" height="44">
+<h1>Esqueci a senha</h1>
+<p>Vale para contas de usuário e de anunciante.</p>
+</header>
+
+<!-- ETAPA 1: e-mail -->
+<section class="cad-card" id="painel-email">
+<form id="form-email" novalidate>
+<div class="campo" id="campo-email">
+<label for="email">E-mail da sua conta</label>
+<input id="email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" spellcheck="false" maxlength="120" required>
+<p class="erro" id="erro-email" role="alert"></p>
+</div>
+<button class="btn" id="btn-enviar" type="submit">Enviar código</button>
+</form>
+</section>
+
+<!-- ETAPA 2: código + nova senha -->
+<section class="cad-card" id="painel-codigo" hidden>
+<p class="codigo-texto">Se existir uma conta com <strong id="codigo-email"></strong>, enviamos um código de 6 números. Ele vale por 15 minutos.</p>
+<form id="form-nova" novalidate>
+<div class="campo" id="campo-codigo">
+<label for="codigo">Código</label>
+<input id="codigo" type="text" class="codigo-input" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" placeholder="000000">
+<p class="erro" id="erro-codigo" role="alert"></p>
+</div>
+<div class="campo" id="campo-senha">
+<label for="senha">Nova senha</label>
+<div class="senha-linha">
+<input id="senha" type="password" autocomplete="new-password" minlength="8" maxlength="128">
+<button type="button" class="ver-senha" id="ver-senha" aria-pressed="false">Mostrar</button>
+</div>
+<p class="dica">Pelo menos 8 caracteres.</p>
+<p class="erro" id="erro-senha" role="alert"></p>
+</div>
+<div class="campo" id="campo-senha2">
+<label for="senha2">Repita a nova senha</label>
+<input id="senha2" type="password" autocomplete="new-password" maxlength="128">
+<p class="erro" id="erro-senha2" role="alert"></p>
+</div>
+<p class="erro geral" id="erro-geral" role="alert"></p>
+<button class="btn" id="btn-salvar" type="submit">Trocar senha</button>
+</form>
+<p class="cad-rodape">Não chegou? Veja o spam ou <button type="button" class="link-btn" id="btn-reenviar">reenviar o código</button></p>
+<p class="ok" id="ok-codigo" role="status"></p>
+</section>
+
+<!-- ETAPA 3: pronto -->
+<section class="cad-card cad-pronto" id="painel-pronto" hidden>
+<div class="pronto-icone" aria-hidden="true">✓</div>
+<h2>Senha trocada!</h2>
+<p>Por segurança, saímos da sua conta em todos os aparelhos. Entre com a nova senha.</p>
+<a class="btn btn-link" href="/php-pages/auth.html">Entrar</a>
+</section>
+</main>
+</body>
+</html>

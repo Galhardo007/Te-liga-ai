@@ -12,3 +12,10 @@
 
 pkg/
 src/
+
+# Te Liga Aí — segredos e dados que não vão para o Git
+private/config.php
+private/firebase/*.json
+private/logs/*
+!private/logs/.gitkeep
+public_html/uploads/u/

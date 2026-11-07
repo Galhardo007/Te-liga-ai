@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070910">
+<title>Meu perfil — Te Liga Aí</title>
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="stylesheet" href="/css/cadastro.css">
+<link rel="stylesheet" href="/css/conta.css">
+<script src="/js/api.js" defer></script>
+<script src="/js/perfil.js" defer></script>
+</head>
+<body>
+<main class="cad" id="perfil" hidden>
+<div class="linha-acoes">
+<a class="cad-voltar" href="/">‹ Início</a>
+<button type="button" class="link-btn" id="btn-sair">Sair</button>
+</div>
+
+<!-- topo -->
+<section class="cad-card">
+<div class="perfil-topo">
+<div id="avatar" class="avatar" aria-hidden="true"></div>
+<div>
+<h1 id="p-nome"></h1>
+<span class="selo" id="p-tipo"></span>
+</div>
+</div>
+<label class="link-btn botao-arquivo">Trocar foto de perfil
+<input type="file" id="foto-perfil" accept="image/jpeg,image/png,image/webp">
+</label>
+<p class="erro" id="erro-foto-perfil" role="alert"></p>
+<p class="cad-rodape"><a href="/chat.html">Abrir o chat</a></p>
+</section>
+
+<!-- dados -->
+<section class="cad-card">
+<h2>Meus dados</h2>
+<form id="form-dados" novalidate>
+<div class="campo" id="campo-nome">
+<label for="nome">Nome completo</label>
+<input id="nome" type="text" maxlength="80" autocomplete="name" required>
+<p class="erro" id="erro-nome" role="alert"></p>
+</div>
+<div class="campo">
+<label for="email">E-mail</label>
+<input id="email" type="email" disabled>
+</div>
+<div class="campo" id="campo-whatsapp">
+<label for="whatsapp">WhatsApp</label>
+<input id="whatsapp" type="tel" inputmode="numeric" maxlength="15" placeholder="(51) 99999-9999">
+<p class="erro" id="erro-whatsapp" role="alert"></p>
+</div>
+<div class="campo" id="campo-cidade">
+<label for="cidade">Cidade</label>
+<input id="cidade" type="text" maxlength="80">
+<p class="erro" id="erro-cidade" role="alert"></p>
+</div>
+<div class="campo">
+<label for="bio">Sobre você</label>
+<textarea id="bio" maxlength="500"></textarea>
+</div>
+<div id="bloco-negocio" hidden>
+<div class="campo">
+<label for="negocio_nome">Nome do negócio</label>
+<input id="negocio_nome" type="text" maxlength="120">
+</div>
+<div class="campo">
+<label for="negocio_categoria">Categoria</label>
+<input id="negocio_categoria" type="text" maxlength="60" placeholder="Ex.: Restaurante, Barbearia, Loja de roupas">
+</div>
+</div>
+<p class="erro geral" id="erro-geral" role="alert"></p>
+<button class="btn" id="btn-salvar" type="submit">Salvar</button>
+<p class="ok" id="ok-dados" role="status"></p>
+</form>
+</section>
+
+<!-- fotos -->
+<section class="cad-card">
+<h2>Minhas fotos</h2>
+<div class="galeria" id="galeria"></div>
+<p class="vazio" id="galeria-vazia">Você ainda não enviou fotos.</p>
+<label class="btn btn-sec botao-arquivo">Adicionar foto
+<input type="file" id="foto-galeria" accept="image/jpeg,image/png,image/webp">
+</label>
+<p class="erro" id="erro-foto-galeria" role="alert"></p>
+</section>
+
+<!-- permissões -->
+<section class="cad-card">
+<h2>Onde você pode publicar</h2>
+<ul class="lista-permissoes" id="secoes"></ul>
+</section>
+
+<!-- senha -->
+<section class="cad-card">
+<h2>Trocar senha</h2>
+<form id="form-senha" novalidate>
+<div class="campo" id="campo-senha_atual">
+<label for="senha_atual">Senha atual</label>
+<input id="senha_atual" type="password" autocomplete="current-password" maxlength="128">
+<p class="erro" id="erro-senha_atual" role="alert"></p>
+</div>
+<div class="campo" id="campo-senha_nova">
+<label for="senha_nova">Nova senha</label>
+<input id="senha_nova" type="password" autocomplete="new-password" maxlength="128">
+<p class="erro" id="erro-senha_nova" role="alert"></p>
+</div>
+<button class="btn btn-sec" id="btn-senha" type="submit">Trocar senha</button>
+<p class="ok" id="ok-senha" role="status"></p>
+</form>
+<p class="cad-rodape"><a href="/esqueci-senha.html">Esqueci a senha atual</a></p>
+</section>
+</main>
+</body>
+</html>
